@@ -1,156 +1,71 @@
 :root {
-  /* เปลี่ยนจากสีพื้น เป็นตัวแปรสีหลัก */
   --primary-color: #2E8B57;
   --secondary-color: #A9DFBF;
-  --bg-color: #F8F9FA;
-  --text-dark: #333;
-  /* สี Gradient ล้ำสมัย */
-  --gradient-main: linear-gradient(135deg, #2E8B57 0%, #145A32 100%);
-  --gradient-header: linear-gradient(90deg, #ffffff 0%, #e8f5e9 100%);
+  --bg-color: #F0F4F8; /* พื้นหลังสีฟ้าอ่อนสบายตา */
+  --text-dark: #2C3E50;
+  --gradient-main: linear-gradient(135deg, #2E8B57 0%, #117A65 100%);
 }
 
 body {
   background-color: var(--bg-color);
   font-family: 'Kanit', sans-serif;
-  padding-top: 80px; /* เพิ่มพื้นที่ให้ Navbar */
+  padding-top: 80px;
   color: var(--text-dark);
-  /* เพิ่มลวดลายพื้นหลังจางๆ */
-  background-image: radial-gradient(#e8f5e9 1px, transparent 1px);
-  background-size: 20px 20px;
 }
 
-/* Navbar สไตล์ใหม่ */
 .navbar {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  border-bottom: 3px solid #2E8B57; /* เส้นตัดขอบล่าง */
+  border-bottom: 3px solid #2E8B57;
 }
-.navbar-brand {
-  font-weight: 600;
-  color: #145A32 !important;
-  display: flex;
-  align-items: center;
-}
-.navbar-brand img {
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1)); /* เงาโลโก้ */
-}
-.nav-link { color: #666; font-weight: 400; transition: 0.3s; }
-.nav-link:hover { color: var(--primary-color); }
+.navbar-brand { font-weight: 700; color: #145A32 !important; display: flex; align-items: center; }
 .nav-link.active {
   color: var(--primary-color) !important;
   font-weight: 700;
-  background: #e8f5e9;
+  background: #E8F5E9;
   border-radius: 20px;
-  padding-left: 15px !important;
-  padding-right: 15px !important;
+  padding: 8px 15px !important;
 }
 
-/* ปุ่มเมนูหน้า Home (Gradient) */
+/* Menu Buttons */
 .menu-btn {
-  border: none;
-  border-radius: 20px;
-  padding: 25px;
-  font-size: 1.1rem;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  height: 140px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: white;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-  position: relative;
-  overflow: hidden;
-}
-.menu-btn:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 30px rgba(46, 139, 87, 0.2);
-}
-.menu-btn::before { /* เอฟเฟกต์แสง */
-  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
-  background: var(--gradient-main);
-}
-.menu-icon { font-size: 3rem; margin-bottom: 10px; background: -webkit-linear-gradient(#2E8B57, #145A32); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-/* Cards & Forms */
-.card {
-  border-radius: 20px;
-  border: none;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-  background: white;
-}
-.form-control, .form-select {
-  border-radius: 12px;
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  background: #fdfdfd;
-}
-.form-control:focus, .form-select:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.25rem rgba(46, 139, 87, 0.15);
-  background: white;
-}
-
-/* ปุ่มหลัก (Gradient) */
-.btn-primary-theme {
-  background: var(--gradient-main);
-  color: white;
-  border: none;
-  border-radius: 50px;
-  padding: 12px 30px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  box-shadow: 0 5px 15px rgba(46, 139, 87, 0.3);
+  border: none; border-radius: 20px; padding: 25px;
+  height: 140px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  background: white; box-shadow: 0 8px 20px rgba(0,0,0,0.05);
   transition: all 0.3s;
+  position: relative; overflow: hidden;
 }
-.btn-primary-theme:hover {
-  background: linear-gradient(135deg, #145A32 0%, #0B3B20 100%);
-  transform: scale(1.02);
-  box-shadow: 0 8px 20px rgba(46, 139, 87, 0.4);
-}
+.menu-btn:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(46, 139, 87, 0.2); }
+.menu-btn::after { content:''; position: absolute; bottom:0; left:0; width:100%; height:4px; background: var(--gradient-main); }
+.menu-icon { font-size: 3rem; margin-bottom: 10px; background: -webkit-linear-gradient(#2E8B57, #1ABC9C); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-.bg-soft-green {
-  background: linear-gradient(180deg, #e8f5e9 0%, #ffffff 100%);
-  border: 1px solid #c8e6c9;
-  border-radius: 15px;
-}
+/* Visit Type Cards (Colors) */
+.card-opd { border-left: 5px solid #FFC107; background: linear-gradient(to right, #FFFDE7, #FFFFFF); }
+.card-home { border-left: 5px solid #2E8B57; background: linear-gradient(to right, #E8F5E9, #FFFFFF); }
+.card-telemed { border-left: 5px solid #3498DB; background: linear-gradient(to right, #EBF5FB, #FFFFFF); }
+.card-ipd { border-left: 5px solid #E74C3C; background: linear-gradient(to right, #FDEDEC, #FFFFFF); }
 
-/* Timeline & History */
-.history-card { border-left: 5px solid; border-image: var(--gradient-main) 1; }
-.history-date { font-weight: bold; color: #145A32; }
+.status-badge { padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; color: #555; background: rgba(255,255,255,0.8); border: 1px solid #ddd; }
 
-/* Date Slider */
-.date-slider-container {
-  background: var(--gradient-main);
-  border-radius: 20px;
-  padding: 15px;
-  box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+/* Form & Inputs */
+.card { border-radius: 20px; border:none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.form-control, .form-select { border-radius: 12px; padding: 12px; border: 1px solid #CFD8DC; background: #FEFEFE; }
+.form-control:focus { border-color: #2E8B57; box-shadow: 0 0 0 0.2rem rgba(46,139,87,0.15); }
+
+.btn-primary-theme {
+  background: var(--gradient-main); color: white; border: none; border-radius: 50px; padding: 12px 30px; font-weight: 600; box-shadow: 0 4px 10px rgba(46,139,87,0.3);
 }
+.btn-primary-theme:hover { background: linear-gradient(135deg, #145A32, #0B3B20); transform: translateY(-2px); }
+
+/* Timeline & Slider */
+.history-card { border-left: 4px solid; border-image: var(--gradient-main) 1; }
+.date-slider-container { background: var(--gradient-main); border-radius: 20px; padding: 15px; box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
 .date-card {
-  min-width: 70px; height: 85px;
-  background-color: rgba(255,255,255,0.15);
-  border-radius: 15px; margin-right: 10px;
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  color: white; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+  min-width: 70px; height: 85px; background: rgba(255,255,255,0.15); border-radius: 15px; margin-right: 10px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; cursor: pointer;
 }
-.date-card.active {
-  background-color: white;
-  color: #145A32;
-  font-weight: bold;
-  transform: scale(1.1);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  border: none;
-}
+.date-card.active { background: white; color: #145A32; font-weight: bold; transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
-/* Footer Credit */
-.app-footer {
-  margin-top: 50px;
-  padding: 20px;
-  text-align: center;
-  color: #888;
-  font-size: 0.9rem;
-  background: white;
-  border-top: 1px solid #eee;
-}
-.credit-name { color: var(--primary-color); font-weight: 600; }
+/* Footer */
+.app-footer { margin-top: 50px; padding: 30px 0; text-align: center; color: #7F8C8D; background: white; border-top: 1px solid #EAEDED; }
