@@ -4,25 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Palliative Care System</title>
-  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#"><i class="fas fa-heartbeat text-danger me-2"></i> Palliative Care</a>
+      <a class="navbar-brand" href="#" onclick="showPage('menu')">
+        <i class="fas fa-heartbeat text-danger me-2"></i> Palliative Care
+      </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link active" onclick="showPage('home')"><i class="fas fa-user-plus"></i> ลงทะเบียน</a></li>
+          <li class="nav-item"><a class="nav-link" onclick="showPage('menu')"><i class="fas fa-home"></i> หน้าหลัก</a></li>
+          <li class="nav-item"><a class="nav-link" id="nav-reg" onclick="showPage('register')"><i class="fas fa-user-plus"></i> ลงทะเบียน/แก้ไข</a></li>
           <li class="nav-item"><a class="nav-link" onclick="showPage('active')"><i class="fas fa-procedures"></i> คงพยาบาล</a></li>
           <li class="nav-item"><a class="nav-link" onclick="showPage('appoint')"><i class="fas fa-calendar-alt"></i> นัดหมาย</a></li>
           <li class="nav-item"><a class="nav-link" onclick="showPage('summary')"><i class="fas fa-chart-pie"></i> สรุป</a></li>
@@ -32,16 +33,34 @@
   </nav>
 
   <div class="container main-content">
-    
-    <div id="page-home" class="page-section">
+
+    <div id="page-menu" class="page-section">
+       <div class="text-center py-4 mb-2">
+         <h3 class="fw-bold text-secondary">ระบบบันทึก Palliative Care</h3>
+         <p class="text-muted">ยินดีต้อนรับเข้าสู่ระบบ</p>
+       </div>
+       <div class="row g-3 justify-content-center">
+          <div class="col-6 col-md-3"><button class="btn btn-outline-success w-100 menu-btn" onclick="showPage('register')"><i class="fas fa-user-plus menu-icon text-success"></i><br>ลงทะเบียน/แก้ไข</button></div>
+          <div class="col-6 col-md-3"><button class="btn btn-outline-primary w-100 menu-btn" onclick="showPage('active')"><i class="fas fa-procedures menu-icon text-primary"></i><br>ผู้ป่วยคงพยาบาล</button></div>
+          <div class="col-6 col-md-3"><button class="btn btn-outline-warning w-100 menu-btn" onclick="showPage('appoint')"><i class="fas fa-calendar-alt menu-icon text-warning"></i><br>ตารางนัดหมาย</button></div>
+          <div class="col-6 col-md-3"><button class="btn btn-outline-secondary w-100 menu-btn" onclick="showPage('summary')"><i class="fas fa-chart-pie menu-icon text-secondary"></i><br>สรุปรายงาน</button></div>
+       </div>
+    </div>
+
+    <div id="page-register" class="page-section d-none">
       <div class="card shadow-sm mt-4 border-0">
         <div class="card-body">
           
           <div class="d-flex justify-content-between align-items-center mb-4">
-             <h4 class="text-primary-theme mb-0"><i class="fas fa-clipboard-list"></i> บันทึกข้อมูลผู้ป่วย</h4>
-             <button type="button" class="btn btn-warning shadow-sm d-none" id="btnViewHistory" onclick="showHistoryModal()">
-                <i class="fas fa-history"></i> ดูประวัติเก่า
-             </button>
+             <h4 class="text-primary-theme mb-0"><i class="fas fa-clipboard-list"></i> บันทึกข้อมูล</h4>
+             <div>
+                <button type="button" class="btn btn-outline-success shadow-sm me-2 d-none" id="linkMap">
+                  <i class="fas fa-map-marked-alt"></i> นำทาง
+                </button>
+                <button type="button" class="btn btn-warning shadow-sm d-none" id="btnViewHistory" onclick="showHistoryModal()">
+                  <i class="fas fa-history"></i> ประวัติเดิม
+                </button>
+             </div>
           </div>
           
           <form id="mainForm" onsubmit="handleFormSubmit(event)">
@@ -52,8 +71,10 @@
                 <div class="col-6 col-md-3"><label class="form-label small">เพศ</label><select class="form-select" id="gender"><option value="Male">ชาย</option><option value="Female">หญิง</option></select></div>
                 <div class="col-12 col-md-6"><label class="form-label small">ชื่อ - สกุล</label><input type="text" class="form-control" id="fullname" required></div>
                 <div class="col-12 col-md-4"><label class="form-label small">ประเภทรับ</label><select class="form-select" id="admitType"><option>IPD</option><option>OPD</option><option>HOME VISIT</option><option>TELEMED</option></select></div>
+                
                 <div class="col-12"><label class="form-label small">เบอร์ติดต่อ</label><div id="phoneContainer"></div><button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addPhoneField()">+ เพิ่มเบอร์</button></div>
-                <div class="col-12"><label class="form-label small">ที่อยู่</label> <button type="button" class="btn btn-sm btn-info text-white ms-2" onclick="getLocation()"><i class="fas fa-map-marker-alt"></i> ปักหมุด</button><div class="input-group mt-2 mb-2"><input type="text" class="form-control" id="addr_house" placeholder="บ้านเลขที่"><input type="text" class="form-control" id="addr_moo" placeholder="หมู่"></div><input type="text" class="form-control mb-2" id="addr_road" placeholder="ถนน/ซอย"><div class="row g-2"><div class="col"><input type="text" class="form-control" id="addr_tumbon" placeholder="ตำบล"></div><div class="col"><input type="text" class="form-control" id="addr_amphoe" placeholder="อำเภอ"></div><div class="col"><input type="text" class="form-control" id="addr_province" placeholder="จังหวัด"></div></div><input type="hidden" id="lat"><input type="hidden" id="long"></div>
+                
+                <div class="col-12"><label class="form-label small">ที่อยู่</label> <button type="button" class="btn btn-sm btn-info text-white ms-2" onclick="getLocation()"><i class="fas fa-map-marker-alt"></i> ปักหมุดปัจจุบัน</button><div class="input-group mt-2 mb-2"><input type="text" class="form-control" id="addr_house" placeholder="บ้านเลขที่"><input type="text" class="form-control" id="addr_moo" placeholder="หมู่"></div><input type="text" class="form-control mb-2" id="addr_road" placeholder="ถนน/ซอย"><div class="row g-2"><div class="col"><input type="text" class="form-control" id="addr_tumbon" placeholder="ตำบล"></div><div class="col"><input type="text" class="form-control" id="addr_amphoe" placeholder="อำเภอ"></div><div class="col"><input type="text" class="form-control" id="addr_province" placeholder="จังหวัด"></div></div><input type="hidden" id="lat"><input type="hidden" id="long"></div>
               </div>
             </div>
 
@@ -63,7 +84,7 @@
                   <div class="col-12">
                     <label class="small">โรคประจำตัว</label>
                     <div class="input-group mb-2"><select class="form-select" id="disease_group" onchange="updateDiseaseSub()"></select><select class="form-select" id="disease_sub"></select></div>
-                    <div class="input-group mb-2"><input type="text" class="form-control" id="disease_specific" placeholder="ระบุเพิ่ม/Metastasis"><button type="button" class="btn btn-primary" onclick="addDisease()">เพิ่ม</button></div>
+                    <div class="input-group mb-2"><input type="text" class="form-control" id="disease_specific" placeholder="ระบุเพิ่ม"><button type="button" class="btn btn-primary" onclick="addDisease()">เพิ่ม</button></div>
                     <div id="diseaseList" class="d-flex flex-wrap gap-1"></div>
                   </div>
                   <div class="col-12">
@@ -78,7 +99,7 @@
                <div class="col-6"><label class="small">PPS Score</label><select class="form-select" id="pps_score"><option value="0">ไม่ระบุ</option></select></div>
                <div class="col-6"><label class="small">GCS</label><input type="text" class="form-control" id="gcs_score" placeholder="E V M"></div>
                <div class="col-12"><label class="small">Vitals (BP / PR / T)</label><div class="input-group"><input type="text" class="form-control" id="vs_bp" placeholder="BP"><input type="text" class="form-control" id="vs_pr" placeholder="PR"><input type="text" class="form-control" id="vs_bt" placeholder="Temp"></div></div>
-               <div class="col-12"><button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#esasBox"><i class="fas fa-sliders-h"></i> ประเมิน ESAS</button><div class="collapse mt-2" id="esasBox"><div class="card card-body bg-light" id="esasContainer"></div></div></div>
+               <div class="col-12"><button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#esasBox"><i class="fas fa-sliders-h"></i> ประเมิน ESAS (Thai/Eng)</button><div class="collapse mt-2" id="esasBox"><div class="card card-body bg-light" id="esasContainer"></div></div></div>
             </div>
 
             <div class="mb-3"><label class="small">Nursing Plan</label><textarea class="form-control" id="nursing_plan" rows="2"></textarea></div>
@@ -88,7 +109,15 @@
                <div class="row g-3">
                  <div class="col-6"><label class="small">นัดถัดไป</label><input type="date" class="form-control" id="next_visit_date"></div>
                  <div class="col-6"><label class="small">ประเภทนัด</label><select class="form-select" id="next_visit_type"><option>OPD</option><option>HOME VISIT</option><option>TELEMED</option></select></div>
-                 <div class="col-12"><label class="small">Lab (Cr / eGFR)</label><div class="input-group"><input type="number" step="0.01" class="form-control" id="lab_cr" placeholder="Cr"><input type="number" step="0.01" class="form-control" id="lab_egfr" placeholder="eGFR"></div></div>
+                 <div class="col-12">
+                    <label class="small">Lab Values</label>
+                    <div class="input-group">
+                      <span class="input-group-text">Cr</span>
+                      <input type="number" step="0.01" class="form-control" id="lab_cr" placeholder="xx.xx" onchange="formatLab(this, 2)">
+                      <span class="input-group-text">eGFR</span>
+                      <input type="number" step="0.01" class="form-control" id="lab_egfr" placeholder="xxx.xx" onchange="formatLab(this, 2)">
+                    </div>
+                 </div>
                  <div class="col-12 pt-2 border-top"><div class="d-flex align-items-center"><div class="form-check me-3"><input class="form-check-input" type="radio" name="pt_status" value="Alive" checked> <label>Alive</label></div><div class="form-check me-3"><input class="form-check-input" type="radio" name="pt_status" value="Death"> <label class="text-danger">Death</label></div><input type="date" class="form-control form-control-sm w-auto" id="discharge_date"></div></div>
                </div>
             </div>
@@ -116,15 +145,20 @@
        <div class="row g-3" id="summaryContainer"></div>
     </div>
 
-  </div> <div class="modal fade" id="historyModal" tabindex="-1">
+  </div>
+
+  <div class="modal fade" id="historyModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header bg-primary-theme text-white">
-          <h5 class="modal-title"><i class="fas fa-history"></i> ประวัติการรักษา: <span id="historyPatientName"></span></h5>
+          <h5 class="modal-title"><i class="fas fa-history"></i> ประวัติ: <span id="historyPatientName"></span></h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body bg-light">
-          <div id="historyLoading" class="text-center py-4"><div class="spinner-border text-primary"></div><p>กำลังโหลดข้อมูล...</p></div>
+          <div class="d-flex justify-content-end mb-2">
+              <button class="btn btn-sm btn-outline-success d-none" id="btnMapHistory"><i class="fas fa-map-marked-alt"></i> นำทางไปบ้าน (Google Map)</button>
+          </div>
+          <div id="historyLoading" class="text-center py-4"><div class="spinner-border text-primary"></div><p>กำลังโหลด...</p></div>
           <div id="historyContent" class="d-none"></div>
         </div>
       </div>
