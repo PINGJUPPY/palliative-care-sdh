@@ -4,82 +4,223 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Palliative Care System</title>
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+  
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#"><i class="fas fa-heartbeat text-danger me-2"></i> Palliative Care</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+      <a class="navbar-brand" href="#">
+        <i class="fas fa-heartbeat text-danger me-2"></i> Palliative Care
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link active" onclick="showPage('home')">ลงทะเบียน</a></li>
-          <li class="nav-item"><a class="nav-link" onclick="showPage('active')">คงพยาบาล</a></li>
-          <li class="nav-item"><a class="nav-link" onclick="showPage('appoint')">นัดหมาย</a></li>
-          <li class="nav-item"><a class="nav-link" onclick="showPage('summary')">สรุป</a></li>
+          <li class="nav-item"><a class="nav-link active" onclick="showPage('home')"><i class="fas fa-user-plus"></i> ลงทะเบียน</a></li>
+          <li class="nav-item"><a class="nav-link" onclick="showPage('active')"><i class="fas fa-procedures"></i> คงพยาบาล</a></li>
+          <li class="nav-item"><a class="nav-link" onclick="showPage('appoint')"><i class="fas fa-calendar-alt"></i> นัดหมาย</a></li>
+          <li class="nav-item"><a class="nav-link" onclick="showPage('summary')"><i class="fas fa-chart-pie"></i> สรุป</a></li>
         </ul>
       </div>
     </div>
   </nav>
 
   <div class="container main-content">
+    
     <div id="page-home" class="page-section">
-      <div class="card shadow-sm mt-4">
+      <div class="card shadow-sm mt-4 border-0">
         <div class="card-body">
-          <h4 class="text-primary-theme mb-4"><i class="fas fa-user-plus"></i> บันทึกข้อมูลผู้ป่วย</h4>
+          <h4 class="text-primary-theme mb-4"><i class="fas fa-clipboard-list"></i> บันทึกข้อมูลผู้ป่วย</h4>
+          
           <form id="mainForm" onsubmit="handleFormSubmit(event)">
-            <div class="row g-3">
-              <div class="col-md-3"><label>HN</label><input type="text" class="form-control" id="hn" required></div>
-              <div class="col-md-2"><label>เพศ</label><select class="form-select" id="gender"><option>Male</option><option>Female</option></select></div>
-              <div class="col-md-4"><label>ชื่อ-สกุล</label><input type="text" class="form-control" id="fullname" required></div>
-              <div class="col-md-3"><label>ประเภท</label><select class="form-select" id="admitType"><option>IPD</option><option>OPD</option><option>HOME VISIT</option></select></div>
+            
+            <div class="bg-light p-3 rounded mb-3">
+              <h6 class="fw-bold text-secondary">ข้อมูลทั่วไป</h6>
+              <div class="row g-3">
+                <div class="col-6 col-md-3">
+                  <label class="form-label small">HN</label>
+                  <input type="text" class="form-control" id="hn" required placeholder="xxxxxx">
+                </div>
+                <div class="col-6 col-md-3">
+                  <label class="form-label small">เพศ</label>
+                  <select class="form-select" id="gender">
+                    <option value="Male">ชาย</option>
+                    <option value="Female">หญิง</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label small">ชื่อ - สกุล</label>
+                  <input type="text" class="form-control" id="fullname" required>
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="form-label small">ประเภทรับ</label>
+                  <select class="form-select" id="admitType">
+                    <option>IPD</option><option>OPD</option><option>HOME VISIT</option><option>TELEMED</option>
+                  </select>
+                </div>
+                
+                <div class="col-12">
+                  <label class="form-label small">เบอร์ติดต่อ</label>
+                  <div id="phoneContainer"></div>
+                  <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addPhoneField()">+ เพิ่มเบอร์</button>
+                </div>
 
-              <div class="col-12"><label>เบอร์โทร</label><div id="phoneContainer"></div><button type="button" class="btn btn-sm btn-light mt-1" onclick="addPhoneField()">+ เพิ่ม</button></div>
-              <div class="col-12"><label>ที่อยู่</label><button type="button" class="btn btn-sm btn-info text-white ms-2" onclick="getLocation()">ปักหมุด</button><div class="input-group mt-2"><input type="text" class="form-control" id="addr_house" placeholder="บ้านเลขที่"><input type="text" class="form-control" id="addr_moo" placeholder="หมู่"></div><div class="row g-2 mt-1"><div class="col"><input type="text" class="form-control" id="addr_tumbon" placeholder="ตำบล"></div><div class="col"><input type="text" class="form-control" id="addr_amphoe" placeholder="อำเภอ"></div><div class="col"><input type="text" class="form-control" id="addr_province" placeholder="จังหวัด"></div></div><input type="hidden" id="lat"><input type="hidden" id="long"></div>
-
-              <div class="col-12 bg-light p-3 rounded">
-                <h5>ข้อมูลการแพทย์</h5>
-                <div class="row">
-                   <div class="col-md-6"><label>โรคประจำตัว</label><div class="d-flex mb-2"><select class="form-select me-1" id="disease_group" onchange="updateDiseaseSub()"></select><select class="form-select me-1" id="disease_sub"></select><input type="text" class="form-control me-1" id="disease_specific"><button type="button" class="btn btn-primary" onclick="addDisease()">+</button></div><div id="diseaseList"></div></div>
-                   <div class="col-md-6"><label>ยาที่ใช้</label><div class="d-flex mb-2"><select class="form-select me-1" id="med_name"></select><input type="text" class="form-control me-1" id="med_dose" placeholder="ขนาด"><button type="button" class="btn btn-primary" onclick="addMed()">+</button></div><ul class="list-group" id="medList"></ul></div>
+                <div class="col-12">
+                  <label class="form-label small">ที่อยู่</label> 
+                  <button type="button" class="btn btn-sm btn-info text-white ms-2" onclick="getLocation()"><i class="fas fa-map-marker-alt"></i> ปักหมุด</button>
+                  <div class="input-group mt-2 mb-2">
+                    <input type="text" class="form-control" id="addr_house" placeholder="บ้านเลขที่">
+                    <input type="text" class="form-control" id="addr_moo" placeholder="หมู่">
+                  </div>
+                  <input type="text" class="form-control mb-2" id="addr_road" placeholder="ถนน/ซอย">
+                  <div class="row g-2">
+                    <div class="col"><input type="text" class="form-control" id="addr_tumbon" placeholder="ตำบล"></div>
+                    <div class="col"><input type="text" class="form-control" id="addr_amphoe" placeholder="อำเภอ"></div>
+                    <div class="col"><input type="text" class="form-control" id="addr_province" placeholder="จังหวัด"></div>
+                  </div>
+                  <input type="hidden" id="lat"><input type="hidden" id="long">
                 </div>
               </div>
-
-              <div class="col-12"><label>PPS Score</label><select class="form-select w-25" id="pps_score"><option value="0">ไม่ระบุ</option></select></div>
-              <div class="col-md-6"><label>GCS</label><input type="text" class="form-control" id="gcs_score"></div>
-              <div class="col-md-6"><label>Vitals (BP, PR, BT)</label><div class="input-group"><input type="text" class="form-control" id="vs_bp"><input type="text" class="form-control" id="vs_pr"><input type="text" class="form-control" id="vs_bt"></div></div>
-              <div class="col-12"><button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#esasBox">ประเมิน ESAS</button><div class="collapse mt-2 card card-body" id="esasBox"><div id="esasContainer"></div></div></div>
-
-              <div class="col-12"><label>Nursing Plan</label><textarea class="form-control" id="nursing_plan"></textarea></div>
-              <div class="col-12 table-responsive"><table class="table table-bordered"><thead><tr><th>ACP Topic</th><th>Want</th><th>Don't</th><th>Undecided</th></tr></thead><tbody id="acpTableBody"></tbody></table></div>
-
-              <div class="col-12 bg-soft-green p-3 rounded">
-                <div class="row g-2">
-                   <div class="col-md-4"><label>วันนัดถัดไป</label><input type="date" class="form-control" id="next_visit_date"></div>
-                   <div class="col-md-4"><label>ประเภทนัด</label><select class="form-select" id="next_visit_type"><option>OPD</option><option>HOME VISIT</option></select></div>
-                   <div class="col-md-4"><label>Lab (Cr/eGFR)</label><div class="input-group"><input type="text" class="form-control" id="lab_cr"><input type="text" class="form-control" id="lab_egfr"></div></div>
-                   <div class="col-12 mt-2"><input type="radio" name="pt_status" value="Alive" checked> Alive <input type="radio" name="pt_status" value="Death" class="ms-3 text-danger"> Death <input type="date" class="form-control d-inline w-auto ms-2" id="discharge_date"></div>
-                </div>
-              </div>
-              <div class="col-12 mt-4"><button type="submit" class="btn btn-primary-theme w-100 btn-lg">บันทึกข้อมูล</button></div>
             </div>
+
+            <div class="bg-light p-3 rounded mb-3">
+               <h6 class="fw-bold text-secondary">ข้อมูลทางการแพทย์</h6>
+               <div class="row g-3">
+                  <div class="col-12">
+                    <label class="small">โรคประจำตัว</label>
+                    <div class="input-group mb-2">
+                      <select class="form-select" id="disease_group" onchange="updateDiseaseSub()"></select>
+                      <select class="form-select" id="disease_sub"></select>
+                    </div>
+                    <div class="input-group mb-2">
+                       <input type="text" class="form-control" id="disease_specific" placeholder="ระบุเพิ่ม/Metastasis">
+                       <button type="button" class="btn btn-primary" onclick="addDisease()">เพิ่ม</button>
+                    </div>
+                    <div id="diseaseList" class="d-flex flex-wrap gap-1"></div>
+                  </div>
+                  
+                  <div class="col-12">
+                    <label class="small">ยาที่ใช้</label>
+                    <div class="input-group mb-2">
+                      <select class="form-select" id="med_name"></select>
+                      <input type="text" class="form-control" id="med_dose" placeholder="วิธีใช้">
+                      <button type="button" class="btn btn-primary" onclick="addMed()">เพิ่ม</button>
+                    </div>
+                    <ul class="list-group list-group-flush" id="medList"></ul>
+                  </div>
+               </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+               <div class="col-6">
+                 <label class="small">PPS Score</label>
+                 <select class="form-select" id="pps_score"><option value="0">ไม่ระบุ</option></select>
+               </div>
+               <div class="col-6">
+                 <label class="small">GCS</label>
+                 <input type="text" class="form-control" id="gcs_score" placeholder="E V M">
+               </div>
+               <div class="col-12">
+                  <label class="small">Vitals (BP / PR / T)</label>
+                  <div class="input-group">
+                    <input type="text" class="form-control" id="vs_bp" placeholder="BP">
+                    <input type="text" class="form-control" id="vs_pr" placeholder="PR">
+                    <input type="text" class="form-control" id="vs_bt" placeholder="Temp">
+                  </div>
+               </div>
+               <div class="col-12">
+                 <button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#esasBox">
+                   <i class="fas fa-sliders-h"></i> ประเมิน ESAS
+                 </button>
+                 <div class="collapse mt-2" id="esasBox">
+                   <div class="card card-body bg-light" id="esasContainer"></div>
+                 </div>
+               </div>
+            </div>
+
+            <div class="mb-3">
+               <label class="small">Nursing Plan</label>
+               <textarea class="form-control" id="nursing_plan" rows="2"></textarea>
+            </div>
+            
+            <div class="mb-3 table-responsive">
+               <label class="small fw-bold">Advance Care Plan</label>
+               <table class="table table-bordered table-sm bg-white" style="font-size:0.85rem">
+                 <thead class="table-light"><tr><th>Topic</th><th class="text-center">Want</th><th class="text-center">Don't</th><th class="text-center">Undecided</th></tr></thead>
+                 <tbody id="acpTableBody"></tbody>
+               </table>
+            </div>
+
+            <div class="bg-soft-green p-3 rounded">
+               <div class="row g-3">
+                 <div class="col-6">
+                   <label class="small">นัดถัดไป</label>
+                   <input type="date" class="form-control" id="next_visit_date">
+                 </div>
+                 <div class="col-6">
+                   <label class="small">ประเภทนัด</label>
+                   <select class="form-select" id="next_visit_type"><option>OPD</option><option>HOME VISIT</option><option>TELEMED</option></select>
+                 </div>
+                 <div class="col-12">
+                   <label class="small">Lab (Cr / eGFR)</label>
+                   <div class="input-group">
+                     <input type="number" step="0.01" class="form-control" id="lab_cr" placeholder="Cr">
+                     <input type="number" step="0.01" class="form-control" id="lab_egfr" placeholder="eGFR">
+                   </div>
+                 </div>
+                 <div class="col-12 pt-2 border-top">
+                    <div class="d-flex align-items-center">
+                       <div class="form-check me-3">
+                         <input class="form-check-input" type="radio" name="pt_status" value="Alive" checked> <label>Alive</label>
+                       </div>
+                       <div class="form-check me-3">
+                         <input class="form-check-input" type="radio" name="pt_status" value="Death"> <label class="text-danger">Death</label>
+                       </div>
+                       <input type="date" class="form-control form-control-sm w-auto" id="discharge_date">
+                    </div>
+                 </div>
+               </div>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-primary-theme btn-lg shadow">บันทึกข้อมูล</button>
+            </div>
+
           </form>
         </div>
       </div>
     </div>
 
-    <div id="page-active" class="page-section d-none"><h3 class="mt-4">ผู้ป่วยคงพยาบาล</h3><input type="text" class="form-control mb-3" id="searchActive" placeholder="ค้นหา..." onkeyup="renderActivePatients()"><div class="row g-3" id="activePatientList"></div></div>
-    <div id="page-appoint" class="page-section d-none"><h3 class="mt-4">ตารางนัดหมาย</h3><div class="date-slider-container mb-3"><div class="d-flex overflow-auto" id="dateSlider"></div></div><div class="row g-3" id="appointList"></div></div>
-    <div id="page-summary" class="page-section d-none"><h3 class="mt-4">สรุปรายงาน</h3><div class="row g-3" id="summaryContainer"></div></div>
+    <div id="page-active" class="page-section d-none">
+       <h4 class="mt-4 mb-3 text-primary-theme"><i class="fas fa-procedures"></i> ผู้ป่วยคงพยาบาล</h4>
+       <input type="text" class="form-control mb-3 shadow-sm" id="searchActive" placeholder="ค้นหาชื่อ หรือ HN..." onkeyup="renderActivePatients()">
+       <div class="row g-3" id="activePatientList"></div>
+    </div>
+
+    <div id="page-appoint" class="page-section d-none">
+       <h4 class="mt-4 mb-3 text-primary-theme"><i class="fas fa-calendar-alt"></i> ตารางนัดหมาย</h4>
+       <div class="date-slider-container mb-3 shadow-sm">
+          <div class="d-flex overflow-auto py-2" id="dateSlider"></div>
+       </div>
+       <div class="row g-3" id="appointList"></div>
+    </div>
+
+    <div id="page-summary" class="page-section d-none">
+       <h4 class="mt-4 mb-3 text-primary-theme"><i class="fas fa-chart-pie"></i> สรุปรายงาน</h4>
+       <div class="row g-3" id="summaryContainer"></div>
+    </div>
+
   </div>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
   <script src="main.js"></script>
 </body>
 </html>
