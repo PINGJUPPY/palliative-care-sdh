@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderACP(); 
   renderMedOptions(); 
   renderDiseaseGroups(); 
-  addPhoneField();
-  loadData(); // Load Data from Google Sheet
+  addPhoneField(); // Add 1 empty field
+  loadData();
 });
 
 // --- API Connect ---
@@ -51,7 +51,6 @@ function loadData() {
       allPatients = data;
       renderActivePatients();
       renderSummary();
-      console.log('Data Loaded:', allPatients.length);
     })
     .catch(err => console.error('Load Error:', err));
 }
@@ -60,7 +59,7 @@ function loadData() {
 function handleFormSubmit(e) {
   e.preventDefault();
   
-  // 1. Collect Phones
+  // 1. Collect Phones (อ่านจาก DOM)
   const phones = []; 
   document.querySelectorAll('.phone-input').forEach(el => { 
     if(el.value) phones.push({number: el.value, label: el.nextElementSibling.value}); 
@@ -134,10 +133,15 @@ function handleFormSubmit(e) {
     if(res.success) {
       Swal.fire('สำเร็จ', 'บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
       document.getElementById('mainForm').reset();
+      // Reset Globals
       currentMeds = []; 
       currentDiseases = []; 
       renderMedsList(); 
       renderDiseaseBadges();
+      // Reset Phones DOM
+      document.getElementById('phoneContainer').innerHTML = '';
+      addPhoneField();
+      
       loadData(); // Refresh Data
     } else {
       Swal.fire('เกิดข้อผิดพลาด', res.message, 'error');
@@ -149,19 +153,103 @@ function handleFormSubmit(e) {
   });
 }
 
+// --- Edit Function (NEW!) ---
+function editPatient(hn) {
+  // 1. หาข้อมูลคนไข้จาก HN
+  const p = allPatients.find(x => String(x.hn) === String(hn));
+  
+  if(!p) {
+    Swal.fire('Error', 'ไม่พบข้อมูลคนไข้', 'error');
+    return;
+  }
+
+  // 2. สลับไปหน้า Home (Registration)
+  showPage('home');
+  
+  // 3. เติมข้อมูลลงช่อง Input ปกติ
+  document.getElementById('hn').value = p.hn;
+  document.getElementById('fullname').value = p.name;
+  document.getElementById('gender').value = p.gender;
+  document.getElementById('admitType').value = p.type_admit;
+  document.getElementById('next_visit_date').value = p.next_visit_date ? p.next_visit_date.split('T')[0] : '';
+  document.getElementById('next_visit_type').value = p.visit_type;
+  document.getElementById('discharge_date').value = p.discharge_date ? p.discharge_date.split('T')[0] : '';
+  
+  // ที่อยู่
+  if(p.address) {
+    document.getElementById('addr_house').value = p.address.house || '';
+    document.getElementById('addr_moo').value = p.address.moo || '';
+    document.getElementById('addr_tumbon').value = p.address.sub || '';
+    document.getElementById('addr_amphoe').value = p.address.dist || '';
+    document.getElementById('addr_province').value = p.address.prov || '';
+    document.getElementById('lat').value = p.address.lat || '';
+    document.getElementById('long').value = p.address.long || '';
+  }
+
+  // 4. Phones (ล้างของเก่าแล้วสร้างใหม่ตามจำนวนเบอร์ที่มี)
+  const phoneContainer = document.getElementById('phoneContainer');
+  phoneContainer.innerHTML = ''; 
+  if(p.phones && p.phones.length > 0) {
+     p.phones.forEach(ph => addPhoneField(ph.number, ph.label));
+  } else {
+     addPhoneField(); // ถ้าไม่มีเบอร์เลย ให้ขึ้นช่องว่าง 1 อัน
+  }
+
+  // 5. Diseases & Meds (Global Arrays)
+  currentDiseases = p.diseases || [];
+  renderDiseaseBadges();
+
+  currentMeds = p.meds || [];
+  renderMedsList();
+
+  // 6. ACP (Radio Buttons)
+  if(p.acp) {
+     Object.keys(p.acp).forEach(topic => {
+        const val = p.acp[topic];
+        const radios = document.getElementsByName(`acp_${topic}`);
+        radios.forEach(r => {
+           if(r.value === val) r.checked = true;
+        });
+     });
+  }
+
+  // 7. Status
+  const stRadios = document.getElementsByName('pt_status');
+  stRadios.forEach(r => {
+     if(r.value === p.status) r.checked = true;
+  });
+
+  // แจ้งเตือนผู้ใช้
+  Swal.fire({
+    title: 'ดึงข้อมูลสำเร็จ',
+    text: `กำลังแก้ไขข้อมูลของ: ${p.name}`,
+    icon: 'success',
+    timer: 1500,
+    showConfirmButton: false
+  });
+  
+  // หมายเหตุ: PPS, GCS, Vitals จะไม่ถูกดึงมา (ปล่อยว่าง) 
+  // เพื่อให้เป็นการประเมินใหม่สำหรับรอบปัจจุบัน
+}
+
+
 // --- Helper Functions ---
 function showPage(pid) { 
   document.querySelectorAll('.page-section').forEach(e=>e.classList.add('d-none')); 
   document.getElementById('page-'+pid).classList.remove('d-none'); 
   document.querySelectorAll('.nav-link').forEach(e=>e.classList.remove('active')); 
-  // Highlight Menu (Logic simplified)
   if(pid==='appoint') initSlider(); 
 }
 
-function addPhoneField() { 
+// อัปเดตให้รับค่าได้ (val, label) เพื่อใช้ตอน Edit
+function addPhoneField(val='', label='') { 
   const d=document.createElement('div'); 
   d.className='input-group mb-2'; 
-  d.innerHTML=`<input type="tel" class="form-control phone-input" placeholder="เบอร์โทร"><input type="text" class="form-control" placeholder="ความสัมพันธ์"><button class="btn btn-outline-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>`; 
+  d.innerHTML=`
+    <input type="tel" class="form-control phone-input" placeholder="เบอร์โทร" value="${val}">
+    <input type="text" class="form-control" placeholder="ความสัมพันธ์" value="${label}">
+    <button class="btn btn-outline-danger" type="button" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+  `; 
   document.getElementById('phoneContainer').appendChild(d); 
 }
 
@@ -269,10 +357,6 @@ function renderActivePatients() {
     </div>`).join('') : '<div class="col-12 text-center text-muted mt-3">ไม่พบข้อมูล</div>'; 
 }
 
-function editPatient(hn) { 
-  Swal.fire('Info', 'ฟังก์ชันแก้ไขข้อมูล HN: '+hn+' (รอพัฒนาต่อ)', 'info'); 
-}
-
 function initSlider() { 
   const c=document.getElementById('dateSlider'); 
   c.innerHTML=''; 
@@ -299,7 +383,7 @@ function renderApptList(dateStr) {
   
   l.innerHTML = p.length ? p.map(x=>`
     <div class="col-md-6">
-       <div class="card p-3 border-start border-3 border-warning shadow-sm">
+       <div class="card p-3 border-start border-3 border-warning shadow-sm" onclick="editPatient('${x.hn}')" style="cursor:pointer">
           <h5 class="mb-1">${x.name}</h5>
           <span class="badge bg-warning text-dark w-auto" style="width:fit-content">${x.visit_type}</span>
        </div>
