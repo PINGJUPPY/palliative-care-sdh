@@ -71,10 +71,12 @@
                 <div class="col-6 col-md-3"><label class="form-label small">เพศ</label><select class="form-select" id="gender"><option value="Male">ชาย</option><option value="Female">หญิง</option></select></div>
                 <div class="col-12 col-md-6"><label class="form-label small">ชื่อ - สกุล</label><input type="text" class="form-control" id="fullname" required></div>
                 <div class="col-12 col-md-4"><label class="form-label small">ประเภทรับ</label><select class="form-select" id="admitType"><option>IPD</option><option>OPD</option><option>HOME VISIT</option><option>TELEMED</option></select></div>
-                
                 <div class="col-12"><label class="form-label small">เบอร์ติดต่อ</label><div id="phoneContainer"></div><button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addPhoneField()">+ เพิ่มเบอร์</button></div>
                 
-                <div class="col-12"><label class="form-label small">ที่อยู่</label> <button type="button" class="btn btn-sm btn-info text-white ms-2" onclick="getLocation()"><i class="fas fa-map-marker-alt"></i> ปักหมุดปัจจุบัน</button><div class="input-group mt-2 mb-2"><input type="text" class="form-control" id="addr_house" placeholder="บ้านเลขที่"><input type="text" class="form-control" id="addr_moo" placeholder="หมู่"></div><input type="text" class="form-control mb-2" id="addr_road" placeholder="ถนน/ซอย"><div class="row g-2"><div class="col"><input type="text" class="form-control" id="addr_tumbon" placeholder="ตำบล"></div><div class="col"><input type="text" class="form-control" id="addr_amphoe" placeholder="อำเภอ"></div><div class="col"><input type="text" class="form-control" id="addr_province" placeholder="จังหวัด"></div></div><input type="hidden" id="lat"><input type="hidden" id="long"></div>
+                <div class="col-12"><label class="form-label small">ที่อยู่</label> 
+                  <button type="button" class="btn btn-sm btn-info text-white ms-2" id="btnGeo" onclick="getLocation()"><i class="fas fa-map-marker-alt"></i> ปักหมุดปัจจุบัน</button>
+                  <div class="input-group mt-2 mb-2"><input type="text" class="form-control" id="addr_house" placeholder="บ้านเลขที่"><input type="text" class="form-control" id="addr_moo" placeholder="หมู่"></div><input type="text" class="form-control mb-2" id="addr_road" placeholder="ถนน/ซอย"><div class="row g-2"><div class="col"><input type="text" class="form-control" id="addr_tumbon" placeholder="ตำบล"></div><div class="col"><input type="text" class="form-control" id="addr_amphoe" placeholder="อำเภอ"></div><div class="col"><input type="text" class="form-control" id="addr_province" placeholder="จังหวัด"></div></div><input type="hidden" id="lat"><input type="hidden" id="long">
+                </div>
               </div>
             </div>
 
@@ -158,7 +160,7 @@
           <div class="d-flex justify-content-end mb-2">
               <button class="btn btn-sm btn-outline-success d-none" id="btnMapHistory"><i class="fas fa-map-marked-alt"></i> นำทางไปบ้าน (Google Map)</button>
           </div>
-          <div id="historyLoading" class="text-center py-4"><div class="spinner-border text-primary"></div><p>กำลังโหลด...</p></div>
+          <div id="historyLoading" class="text-center py-4"><div class="spinner-border text-primary"></div><p>กำลังโหลดข้อมูล...</p></div>
           <div id="historyContent" class="d-none"></div>
         </div>
       </div>
