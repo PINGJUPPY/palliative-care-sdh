@@ -1,4 +1,4 @@
-// *** URL Web App ของคุณ (Update 02/01/2026) ***
+// *** URL Web App ของคุณ ***
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMhp7MKTutWhTto_XOUcl9qp7MbYmeoMMd5naMngQOXx0t3IiyPSRQxIPV2d7MolxeAQ/exec';
 
 // --- Data Lists ---
@@ -17,12 +17,7 @@ const diseaseData = {
 };
 const medList = ["Morphine inj (10 mg/5 mL)", "Fentanyl inj (50 mcg/mL)", "Midazolam (5 mg/mL)", "MST(10 mg)", "MST(30 mg)", "Morphine syr (10 mg/5 mL)", "Fentanyl patch (12 mcg/hr)", "Senna (มะขามแขก)", "Lactulose", "Gabapentin (300 mg)", "Paracetamol (500 mg)", "Tramadol (50 mg)", "Haloperidol", "Domperidone", "Metoclopramide", "Diazepam", "Baclofen"];
 const acpTopics = ["ET tube", "CPR", "Inotrope", "Hemodialysis", "NG tube", "Morphine", "Place of death"];
-// ESAS 2 ภาษา
-const esasTopics = [
-  "Pain (ปวด)", "Fatigue (เหนื่อย)", "Nausea (คลื่นไส้)", 
-  "Depression (ซึมเศร้า)", "Anxiety (วิตกกังวล)", "Drowsiness (ง่วงซึม)", 
-  "Appetite (เบื่ออาหาร)", "Well-being (สบายกายใจ)", "Shortness of breath (เหนื่อยหอบ)"
-];
+const esasTopics = ["Pain (ปวด)", "Fatigue (เหนื่อย)", "Nausea (คลื่นไส้)", "Depression (ซึมเศร้า)", "Anxiety (วิตกกังวล)", "Drowsiness (ง่วงซึม)", "Appetite (เบื่ออาหาร)", "Well-being (สบายกายใจ)", "Shortness of breath (เหนื่อยหอบ)"];
 
 // --- Global Variables ---
 let allPatients = [];
@@ -35,19 +30,29 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPPS(); renderESAS(); renderACP(); renderMedOptions(); renderDiseaseGroups(); 
   addPhoneField(); 
   loadData();
-  showPage('menu'); // Start at Menu
+  showPage('menu');
 });
 
 function loadData() {
   fetch(SCRIPT_URL + '?op=getAll').then(r=>r.json()).then(d=>{ allPatients=d; renderActivePatients(); renderSummary(); }).catch(e=>console.error(e));
 }
 
-// --- Date Format (DD/MM/YYYY) ---
+// --- Date Format Helpers ---
+
+// 1. แปลงเป็น YYYY-MM-DD ตามเวลาท้องถิ่น (แก้ปัญหา วันที่เลื่อน)
+function toLocalISOString(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// 2. แสดงผลภาษาไทย
 function formatDate(isoStr) {
   if(!isoStr) return '-';
   const d = new Date(isoStr);
   if(isNaN(d.getTime())) return '-';
-  const year = d.getFullYear() + 543; // Thai Year
+  const year = d.getFullYear() + 543;
   return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${year}`;
 }
 
@@ -91,10 +96,14 @@ function handleFormSubmit(e) {
          document.getElementById('mainForm').reset();
          document.getElementById('btnViewHistory').classList.add('d-none');
          document.getElementById('linkMap').classList.add('d-none');
+         
+         // Reset ปุ่ม Map
+         updateMapBtnStatus(false);
+
          currentMeds=[]; currentDiseases=[]; renderMedsList(); renderDiseaseBadges();
          document.getElementById('phoneContainer').innerHTML=''; addPhoneField();
          loadData();
-         showPage('menu'); // กลับหน้าเมนูเมื่อเสร็จ
+         showPage('menu');
        } else Swal.fire('Error',res.message,'error');
     });
 }
@@ -106,12 +115,17 @@ function editPatient(hn) {
   
   document.getElementById('btnViewHistory').classList.remove('d-none');
   
-  // Show Map Button if coords exist
+  // Logic ปุ่มนำทาง Google Map
   const linkMap = document.getElementById('linkMap');
   if(p.address && p.address.lat && p.address.long) {
      linkMap.classList.remove('d-none');
      linkMap.onclick = () => window.open(`https://www.google.com/maps/dir/?api=1&destination=${p.address.lat},${p.address.long}`, '_blank');
-  } else linkMap.classList.add('d-none');
+     // Update ปุ่มปักหมุดให้เป็นสีเขียว
+     updateMapBtnStatus(true);
+  } else {
+     linkMap.classList.add('d-none');
+     updateMapBtnStatus(false);
+  }
 
   Swal.fire({title:'โหมดแก้ไข', text:'ดึงข้อมูล: '+p.name, icon:'info', timer:1500, showConfirmButton:false});
 
@@ -142,6 +156,35 @@ function editPatient(hn) {
   document.getElementById('discharge_date').value = p.discharge_date ? p.discharge_date.split('T')[0] : '';
 }
 
+// --- Map Button Logic ---
+function updateMapBtnStatus(hasLocation) {
+  const btn = document.getElementById('btnGeo');
+  if(hasLocation) {
+    btn.className = 'btn btn-sm btn-success text-white ms-2';
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> ปักหมุดแล้ว';
+  } else {
+    btn.className = 'btn btn-sm btn-info text-white ms-2';
+    btn.innerHTML = '<i class="fas fa-map-marker-alt"></i> ปักหมุดปัจจุบัน';
+  }
+}
+
+function getLocation() { 
+  if(navigator.geolocation) {
+    Swal.fire({title:'กำลังค้นหาพิกัด...', didOpen:()=>Swal.showLoading()});
+    navigator.geolocation.getCurrentPosition(p=>{ 
+      document.getElementById('lat').value=p.coords.latitude; 
+      document.getElementById('long').value=p.coords.longitude; 
+      
+      // Update UI
+      updateMapBtnStatus(true);
+      Swal.close();
+      window.open(`https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`);
+    }, err => {
+       Swal.fire('Error', 'ไม่สามารถระบุตำแหน่งได้', 'error');
+    }); 
+  } else { Swal.fire('Error','Browser not support GPS','error'); } 
+}
+
 // --- History Modal ---
 function showHistoryModal() {
   const hn = document.getElementById('hn').value;
@@ -154,7 +197,6 @@ function showHistoryModal() {
   document.getElementById('historyContent').classList.add('d-none');
   modal.show();
 
-  // Map Button in History
   const lat = document.getElementById('lat').value;
   const long = document.getElementById('long').value;
   const btnMap = document.getElementById('btnMapHistory');
@@ -179,29 +221,19 @@ function renderHistoryItems(list) {
   c.innerHTML = list.map(h => {
      const d = formatDate(h.date);
      
-     // Lab
      let labHtml = '';
      if(h.lab_cr || h.lab_egfr) labHtml = `<div class="alert alert-light border p-2 mb-2 small"><i class="fas fa-flask text-danger"></i> <b>Lab:</b> Cr: ${h.lab_cr||'-'} | eGFR: ${h.lab_egfr||'-'}</div>`;
 
-     // Meds
      let medHtml = '-';
      if(h.meds && h.meds.length) medHtml = '<ul class="mb-0 ps-3 small text-muted">' + h.meds.map(m=>`<li>${m.name} (${m.dose})</li>`).join('') + '</ul>';
 
-     // ESAS Detail
      let esasHtml = '';
-     if(h.esas) {
-        Object.entries(h.esas).forEach(([k,v]) => {
-           if(v > 0) esasHtml += `<span class="badge bg-warning text-dark me-1 border">${k}: ${v}</span>`;
-        });
-     }
+     if(h.esas) { Object.entries(h.esas).forEach(([k,v]) => { if(v > 0) esasHtml += `<span class="badge bg-warning text-dark me-1 border">${k}: ${v}</span>`; }); }
      
-     // ACP (Show only if recorded)
      let acpHtml = '';
      if(h.acp && Object.keys(h.acp).length > 0) {
         acpHtml = `<div class="mt-2 small border-top pt-2"><i class="fas fa-file-contract"></i> <b>ACP:</b> `;
-        Object.entries(h.acp).forEach(([k,v]) => {
-            if(v !== 'Undecided') acpHtml += `<span class="me-2">${k}: <u>${v}</u></span>`;
-        });
+        Object.entries(h.acp).forEach(([k,v]) => { if(v !== 'Undecided') acpHtml += `<span class="me-2">${k}: <u>${v}</u></span>`; });
         acpHtml += `</div>`;
      }
 
@@ -240,27 +272,9 @@ function showPage(pid) {
   if(pid==='register') document.getElementById('nav-reg').classList.add('active');
 }
 
-// Phone 10 Digit + Relation List
 function addPhoneField(v='',l='') { 
-  const d=document.createElement('div'); 
-  d.className='input-group mb-2'; 
-  d.innerHTML=`
-    <input type="tel" class="form-control phone-input" placeholder="เบอร์โทร" value="${v}" maxlength="10">
-    <select class="form-select" style="max-width:130px">
-       <option value="">ความสัมพันธ์</option>
-       <option value="คนไข้" ${l==='คนไข้'?'selected':''}>คนไข้</option>
-       <option value="พ่อ" ${l==='พ่อ'?'selected':''}>พ่อ</option>
-       <option value="แม่" ${l==='แม่'?'selected':''}>แม่</option>
-       <option value="ลูก" ${l==='ลูก'?'selected':''}>ลูก</option>
-       <option value="ผู้ดูแล" ${l==='ผู้ดูแล'?'selected':''}>ผู้ดูแล</option>
-       <option value="ญาติ" ${l==='ญาติ'?'selected':''}>ญาติ</option>
-    </select>
-    <button class="btn btn-outline-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-  `; 
-  document.getElementById('phoneContainer').appendChild(d); 
+  const d=document.createElement('div'); d.className='input-group mb-2'; d.innerHTML=`<input type="tel" class="form-control phone-input" placeholder="เบอร์โทร" value="${v}" maxlength="10"><select class="form-select" style="max-width:130px"><option value="">ความสัมพันธ์</option><option value="คนไข้" ${l==='คนไข้'?'selected':''}>คนไข้</option><option value="พ่อ" ${l==='พ่อ'?'selected':''}>พ่อ</option><option value="แม่" ${l==='แม่'?'selected':''}>แม่</option><option value="ลูก" ${l==='ลูก'?'selected':''}>ลูก</option><option value="ผู้ดูแล" ${l==='ผู้ดูแล'?'selected':''}>ผู้ดูแล</option><option value="ญาติ" ${l==='ญาติ'?'selected':''}>ญาติ</option></select><button class="btn btn-outline-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>`; document.getElementById('phoneContainer').appendChild(d); 
 }
-
-// Lab Format xx.xx
 function formatLab(el, dec) { if(el.value) el.value = parseFloat(el.value).toFixed(dec); }
 
 function renderPPS() { const s=document.getElementById('pps_score'); for(let i=0;i<=100;i+=10) s.add(new Option(i+'%',i)); }
@@ -273,8 +287,26 @@ function renderDiseaseBadges() { document.getElementById('diseaseList').innerHTM
 function renderMedOptions() { const s=document.getElementById('med_name'); s.add(new Option('--Drug--','')); medList.forEach(m=>s.add(new Option(m,m))); }
 function addMed() { const n=document.getElementById('med_name').value, d=document.getElementById('med_dose').value; if(n){ currentMeds.push({name:n,dose:d}); renderMedsList(); document.getElementById('med_dose').value=''; } }
 function renderMedsList() { document.getElementById('medList').innerHTML=currentMeds.map((m,i)=>`<li class="list-group-item d-flex justify-content-between p-2 small">${m.name} (${m.dose}) <button class="btn btn-sm btn-outline-danger border-0" onclick="currentMeds.splice(${i},1);renderMedsList()"><i class="fas fa-times"></i></button></li>`).join(''); }
-function getLocation() { if(navigator.geolocation) navigator.geolocation.getCurrentPosition(p=>{ document.getElementById('lat').value=p.coords.latitude; document.getElementById('long').value=p.coords.longitude; window.open(`https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`); }); }
 function renderActivePatients() { const t=document.getElementById('searchActive').value.toLowerCase(); const f=allPatients.filter(p=>p.status==='Alive'&&(p.name.includes(t)||p.hn.includes(t))); document.getElementById('activePatientList').innerHTML=f.length?f.map(p=>`<div class="col-md-4"><div class="card p-3 shadow-sm patient-card" onclick="editPatient('${p.hn}')"><h5>${p.name}</h5><small>HN:${p.hn} | ${p.visit_type||'-'}</small><br><small class="text-muted">นัด: ${formatDate(p.next_visit_date)}</small></div></div>`).join(''):'<div class="col-12 text-center text-muted">ไม่พบข้อมูล</div>'; }
-function initSlider() { const c=document.getElementById('dateSlider'); c.innerHTML=''; const d=new Date(); const th=['อา','จ','อ','พ','พฤ','ศ','ส']; for(let i=0;i<14;i++){ const t=new Date(d); t.setDate(d.getDate()+i); const s=t.toISOString().split('T')[0]; c.innerHTML+=`<div class="date-card ${i===0?'active':''}" onclick="document.querySelectorAll('.date-card').forEach(e=>e.classList.remove('active'));this.classList.add('active');renderApptList('${s}')"><div class="date-day">${th[t.getDay()]}</div><div class="date-num">${t.getDate()}</div></div>`; } renderApptList(d.toISOString().split('T')[0]); }
-function renderApptList(s) { const l=document.getElementById('appointList'); const p=allPatients.filter(x=>x.next_visit_date&&x.next_visit_date.includes(s)); l.innerHTML=p.length?p.map(x=>`<div class="col-md-6"><div class="card p-3 border-start border-3 border-warning shadow-sm" onclick="editPatient('${x.hn}')" style="cursor:pointer"><h5>${x.name}</h5><span class="badge bg-warning text-dark">${x.visit_type}</span></div></div>`).join(''):'<div class="col-12 text-center text-muted py-5">ไม่มีนัด</div>'; }
 function renderSummary() { document.getElementById('summaryContainer').innerHTML=`<div class="col-6"><div class="card p-3 bg-primary text-white"><h3>${allPatients.length}</h3>Total</div></div><div class="col-6"><div class="card p-3 bg-success text-white"><h3>${allPatients.filter(p=>p.status==='Alive').length}</h3>Active</div></div>`; }
+
+// --- Slider Fix (Use Local Date) ---
+function initSlider() { 
+  const c=document.getElementById('dateSlider'); c.innerHTML=''; 
+  const d=new Date(); 
+  const th=['อา','จ','อ','พ','พฤ','ศ','ส']; 
+  for(let i=0;i<14;i++){ 
+    const t=new Date(d); 
+    t.setDate(d.getDate()+i); 
+    // ใช้ toLocalISOString แทน toISOString เพื่อไม่ให้วันเลื่อน
+    const s=toLocalISOString(t); 
+    c.innerHTML+=`<div class="date-card ${i===0?'active':''}" onclick="document.querySelectorAll('.date-card').forEach(e=>e.classList.remove('active'));this.classList.add('active');renderApptList('${s}')"><div class="date-day">${th[t.getDay()]}</div><div class="date-num">${t.getDate()}</div></div>`; 
+  } 
+  renderApptList(toLocalISOString(d)); 
+}
+
+function renderApptList(s) { 
+  const l=document.getElementById('appointList'); 
+  const p=allPatients.filter(x=>x.next_visit_date&&x.next_visit_date.includes(s)); 
+  l.innerHTML=p.length?p.map(x=>`<div class="col-md-6"><div class="card p-3 border-start border-3 border-warning shadow-sm" onclick="editPatient('${x.hn}')" style="cursor:pointer"><h5>${x.name}</h5><span class="badge bg-warning text-dark">${x.visit_type}</span></div></div>`).join(''):'<div class="col-12 text-center text-muted py-5">ไม่มีนัด</div>'; 
+}
