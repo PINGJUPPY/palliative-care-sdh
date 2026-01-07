@@ -1,7 +1,7 @@
 // *** URL Web App ของคุณ ***
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMhp7MKTutWhTto_XOUcl9qp7MbYmeoMMd5naMngQOXx0t3IiyPSRQxIPV2d7MolxeAQ/exec';
 
-// --- DATA STRUCTURE (Updated) ---
+// --- Data Lists ---
 const diseaseData = {
   "Non-Cancer": {
     "Neurological Disease": ["Ischemic stroke", "Hemorrhagic stroke", "Parkinson", "Alzheimer’s disease", "Epilepsy", "อื่นๆ ระบุ"],
@@ -9,24 +9,11 @@ const diseaseData = {
     "Pulmonary and Heart Disease": ["COPD", "Asthma", "Other chronic lung disease", "CHF", "IHD", "อื่นๆ ระบุ"],
     "Infection Disease HIV/AIDS": ["HIV infection", "TB infection", "Septicemia", "CNS", "HEENT", "Respiratory tract", "Gastrointestinal tract", "Genitourinary tract", "Gynecologic tract", "Soft tissue and skin", "อื่นๆ ระบุ"],
     "อื่นๆ": ["DM", "HT", "DLP", "Hypothyroid", "Hyperthyroid", "Cirrhosis", "Aplastic anemia", "Thalassemia", "IDA", "อื่นๆ ระบุ"],
-    // กลุ่มที่ไม่มีตัวเลือกย่อย (ให้พิมพ์ระบุเอง)
-    "Multiple Trauma Patient": [], 
-    "Pediatric": [],
-    "Aging/Dementia": []
+    "Multiple Trauma Patient": [], "Pediatric": [], "Aging/Dementia": []
   },
   "Cancer": {
-    // Primary Sites
-    "Primary": [
-      "Brain", "Nasopharynx", "Tongue", "Lung", "Breast", "Stomach", "Colon", "Liver", 
-      "Cholangiocarcinoma", "Squamous cell carcinoma", "Cervix", "Endometrium", "Uterus", 
-      "Kidney", "Prostate", "Gall bladder", "Urinary bladder", "Pancreas", "Bone", 
-      "Lymphoma", "Leukemia", "Multiple myeloma", "Peritonium", "Sarcoma", "Unknown primary"
-    ],
-    // Metastasis Sites
-    "Metastasis": [
-      "None", "Brain", "Lung", "Pleural", "Bone", "Lymph node", 
-      "Liver", "Peritoneal", "Skin", "อื่นๆ ระบุ"
-    ]
+    "Primary": ["Brain", "Nasopharynx", "Tongue", "Lung", "Breast", "Stomach", "Colon", "Liver", "Cholangiocarcinoma", "Squamous cell carcinoma", "Cervix", "Endometrium", "Uterus", "Kidney", "Prostate", "Gall bladder", "Urinary bladder", "Pancreas", "Bone", "Lymphoma", "Leukemia", "Multiple myeloma", "Peritonium", "Sarcoma", "Unknown primary"],
+    "Metastasis": ["None", "Brain", "Lung", "Pleural", "Bone", "Lymph node", "Liver", "Peritoneal", "Skin", "อื่นๆ ระบุ"]
   }
 };
 
@@ -46,8 +33,7 @@ const esasTopics = ["Pain (ปวด)", "Fatigue (เหนื่อย)", "Naus
 let allPatients = [], currentPhones = [], currentDiseases = [], currentMeds = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-  renderPPS(); renderESAS(); renderACP(); renderMedOptions(); 
-  renderDiseaseType(); // สร้างตัวเลือกประเภทโรค
+  renderPPS(); renderESAS(); renderACP(); renderMedOptions(); renderDiseaseType(); 
   addPhoneField(); 
   loadData();
   showPage('menu');
@@ -76,10 +62,10 @@ function getTypeClass(type) {
   return '';
 }
 
+// --- Form Handle ---
 function handleFormSubmit(e) {
   e.preventDefault();
   const hnVal = document.getElementById('hn').value;
-  // ** HN 7 หลัก **
   if(hnVal.length !== 7 || isNaN(hnVal)) { Swal.fire('ข้อผิดพลาด', 'HN ต้องเป็นตัวเลข 7 หลัก', 'warning'); return; }
 
   const phones=[]; document.querySelectorAll('.phone-input').forEach(el=>{ if(el.value) phones.push({number:el.value, label:el.nextElementSibling.value}); });
@@ -194,6 +180,7 @@ function resetForm() {
   updateDiseaseUI();
 }
 
+// --- History ---
 function showHistoryModal() {
   const hn = document.getElementById('hn').value;
   const name = document.getElementById('fullname').value;
@@ -231,7 +218,21 @@ function showPage(pid) {
 function updateMapBtnStatus(has) { const b=document.getElementById('btnGeo'); if(has){b.className='btn btn-sm btn-success text-white ms-2'; b.innerHTML='<i class="fas fa-check-circle"></i> บันทึกแล้ว';}else{b.className='btn btn-sm btn-info text-white ms-2'; b.innerHTML='<i class="fas fa-map-marker-alt"></i> ปักหมุดปัจจุบัน';} }
 function getLocation() { if(navigator.geolocation){ Swal.fire({title:'กำลังระบุพิกัด...',didOpen:()=>Swal.showLoading()}); navigator.geolocation.getCurrentPosition(p=>{ document.getElementById('lat').value=p.coords.latitude; document.getElementById('long').value=p.coords.longitude; updateMapBtnStatus(true); Swal.fire({icon:'success', title:'บันทึกพิกัดสำเร็จ', text:`${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`, timer:1500, showConfirmButton:false}); }, err=>{ Swal.fire('Error','ไม่สามารถระบุตำแหน่งได้','error'); }); } else { Swal.fire('Error','Browser ไม่รองรับ GPS','error'); } }
 function addPhoneField(v='',l=''){ const d=document.createElement('div'); d.className='input-group mb-2'; d.innerHTML=`<input type="tel" class="form-control phone-input" placeholder="เบอร์โทร" value="${v}" maxlength="10"><select class="form-select" style="max-width:130px"><option value="">ความสัมพันธ์</option><option value="คนไข้" ${l==='คนไข้'?'selected':''}>คนไข้</option><option value="คู่สมรส" ${l==='คู่สมรส'?'selected':''}>คู่สมรส</option><option value="พ่อ" ${l==='พ่อ'?'selected':''}>พ่อ</option><option value="แม่" ${l==='แม่'?'selected':''}>แม่</option><option value="ลูก" ${l==='ลูก'?'selected':''}>ลูก</option><option value="ผู้ดูแล" ${l==='ผู้ดูแล'?'selected':''}>ผู้ดูแล</option><option value="ญาติ" ${l==='ญาติ'?'selected':''}>ญาติ</option></select><button class="btn btn-outline-danger" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>`; document.getElementById('phoneContainer').appendChild(d); }
-function checkLabFormat(el,type){let v=el.value.replace(/[^0-9.]/g,'');if((v.match(/\./g)||[]).length>1)v=v.substring(0,v.lastIndexOf('.'));const p=v.split('.');let i=p[0],d=p.length>1?'.'+p[1]:'';if(type==='cr'&&i.length>2)i=i.substring(0,2);if(type==='egfr'&&i.length>3)i=i.substring(0,3);if(d.length>3)d=d.substring(0,3);el.value=i+d;}
+
+// *** NEW LAB LOGIC ***
+function validateLabInput(el, type) {
+  if (el.value === '') return;
+  const val = parseFloat(el.value);
+  if (type === 'cr' && val >= 100) el.value = el.value.slice(0, -1);
+  if (type === 'egfr' && val >= 1000) el.value = el.value.slice(0, -1);
+}
+
+function formatLabFinal(el) {
+  if (el.value === '') return;
+  const val = parseFloat(el.value);
+  if (!isNaN(val)) el.value = val.toFixed(2);
+}
+
 function renderPPS(){const s=document.getElementById('pps_score');s.innerHTML='';s.add(new Option('ไม่ระบุ',''));for(let i=0;i<=100;i+=10)s.add(new Option(i+'%',i));}
 function renderESAS(){const c=document.getElementById('esasContainer');esasTopics.forEach((t,i)=>c.innerHTML+=`<div class="mb-2"><label class="d-flex justify-content-between small">${t} <span id="v${i}">0</span></label><input type="range" class="form-range esas-range" min="0" max="10" value="0" oninput="document.getElementById('v${i}').innerText=this.value" data-topic="${t}"></div>`);}
 function renderACP(){const b=document.getElementById('acpTableBody');acpTopics.forEach(t=>b.innerHTML+=`<tr><td>${t}</td><td class="text-center"><input type="radio" name="acp_${t}" value="Want"></td><td class="text-center"><input type="radio" name="acp_${t}" value="Dont"></td><td class="text-center"><input type="radio" name="acp_${t}" value="Undecided" checked></td></tr>`);}
@@ -243,7 +244,7 @@ function renderApptList(s){const l=document.getElementById('appointList');const 
 function renderSummary(){document.getElementById('summaryContainer').innerHTML=`<div class="col-6 col-md-3"><div class="card p-3 bg-primary text-white"><h3>${allPatients.length}</h3>Total</div></div><div class="col-6 col-md-3"><div class="card p-3 bg-success text-white"><h3>${allPatients.filter(p=>p.status==='Alive').length}</h3>Active</div></div><div class="col-6 col-md-3"><div class="card p-3 bg-dark text-white"><h3>${allPatients.filter(p=>p.status!=='Alive').length}</h3>Death</div></div>`;}
 function initSlider(){const c=document.getElementById('dateSlider');c.innerHTML='';const d=new Date();const th=['อา','จ','อ','พ','พฤ','ศ','ส'];for(let i=0;i<14;i++){const t=new Date(d);t.setDate(d.getDate()+i);const y=t.getFullYear(),m=String(t.getMonth()+1).padStart(2,'0'),day=String(t.getDate()).padStart(2,'0'),s=`${y}-${m}-${day}`;c.innerHTML+=`<div class="date-card ${i===0?'active':''}" onclick="document.querySelectorAll('.date-card').forEach(e=>e.classList.remove('active'));this.classList.add('active');renderApptList('${s}')"><div class="date-day">${th[t.getDay()]}</div><div class="date-num">${t.getDate()}</div></div>`;}const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');renderApptList(`${y}-${m}-${day}`);}
 
-// --- LOGIC โรคแบบใหม่ (Clean Logic) ---
+// --- DISEASE LOGIC ---
 function renderDiseaseType() {
   const sel = document.getElementById('disease_type');
   sel.innerHTML = '<option value="">-- เลือกประเภท --</option>';
@@ -256,7 +257,6 @@ function updateDiseaseUI() {
   const subSel = document.getElementById('disease_sub');
   const otherInput = document.getElementById('disease_other_container');
   
-  // Reset
   groupSel.innerHTML = '<option value="">-- เลือกกลุ่ม/ตำแหน่ง --</option>';
   subSel.innerHTML = '<option value="">-- เลือกโรค/การแพร่กระจาย --</option>';
   subSel.parentElement.classList.add('d-none');
@@ -267,11 +267,9 @@ function updateDiseaseUI() {
   if (type === 'Non-Cancer') {
     document.getElementById('disease_group_label').innerText = 'กลุ่มโรค';
     Object.keys(diseaseData['Non-Cancer']).forEach(k => groupSel.add(new Option(k, k)));
-  } else { // Cancer
+  } else { 
     document.getElementById('disease_group_label').innerText = 'ตำแหน่งมะเร็ง (Primary)';
     diseaseData['Cancer']['Primary'].forEach(k => groupSel.add(new Option(k, k)));
-    
-    // Cancer ต้องโชว์ Metastasis เสมอ
     document.getElementById('disease_sub_label').innerText = 'การแพร่กระจาย (Metastasis)';
     subSel.parentElement.classList.remove('d-none');
     diseaseData['Cancer']['Metastasis'].forEach(k => subSel.add(new Option(k, k)));
@@ -286,16 +284,13 @@ function updateDiseaseSub() {
 
   if (type === 'Non-Cancer') {
     const subOptions = diseaseData['Non-Cancer'][group];
-    
     if (subOptions && subOptions.length > 0) {
-      // มีตัวเลือกย่อย (เช่น Neuro, Kidney)
       subSel.parentElement.classList.remove('d-none');
       subSel.innerHTML = '<option value="">-- เลือกโรค --</option>';
       document.getElementById('disease_sub_label').innerText = 'ระบุโรค';
       subOptions.forEach(k => subSel.add(new Option(k, k)));
-      otherInput.classList.add('d-none'); // ซ่อนช่องพิมพ์ก่อน
+      otherInput.classList.add('d-none');
     } else {
-      // ไม่มีตัวเลือกย่อย (เช่น Trauma, Pediatric) -> ให้พิมพ์เองเลย
       subSel.parentElement.classList.add('d-none');
       otherInput.classList.remove('d-none');
       document.getElementById('disease_specific').focus();
@@ -306,7 +301,6 @@ function updateDiseaseSub() {
 function checkDiseaseOther() {
   const sub = document.getElementById('disease_sub').value;
   const otherInput = document.getElementById('disease_other_container');
-  // ถ้าเลือก "อื่นๆ ระบุ" ให้โชว์ช่องพิมพ์
   if (sub.includes('ระบุ')) {
     otherInput.classList.remove('d-none');
     document.getElementById('disease_specific').focus();
@@ -324,20 +318,17 @@ function addDisease() {
   if (!type || !group) return;
 
   let txt = '';
-  
   if (type === 'Non-Cancer') {
-    // กรณีมี Sub Dropdown (เช่น Neuro)
     if (!document.getElementById('disease_sub').parentElement.classList.contains('d-none')) {
-       if (!sub) return; // ต้องเลือกโรคก่อน
+       if (!sub) return;
        txt = `${group}: ${sub}`;
        if (sub.includes('ระบุ') && other) txt += ` (${other})`;
     } else {
-       // กรณีไม่มี Sub Dropdown (เช่น Trauma) -> เอาจากช่องพิมพ์เลย
        txt = `${group}`;
        if (other) txt += ` (${other})`;
     }
-  } else { // Cancer
-    if (!sub) return; // ต้องเลือก Meta
+  } else { 
+    if (!sub) return;
     txt = `CA ${group}`;
     if (sub !== 'None') {
        txt += ` (Meta: ${sub}`;
@@ -348,8 +339,6 @@ function addDisease() {
 
   currentDiseases.push(txt);
   renderDiseaseBadges();
-  
-  // Clear Inputs
   document.getElementById('disease_group').value = '';
   document.getElementById('disease_sub').value = '';
   document.getElementById('disease_specific').value = '';
