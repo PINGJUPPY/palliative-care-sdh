@@ -1,7 +1,5 @@
-// *** URL Web App ของคุณ ***
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMhp7MKTutWhTto_XOUcl9qp7MbYmeoMMd5naMngQOXx0t3IiyPSRQxIPV2d7MolxeAQ/exec';
 
-// --- Data Lists ---
 const diseaseData = {
   "Non-Cancer": {
     "Neurological Disease": ["Ischemic stroke", "Hemorrhagic stroke", "Parkinson", "Alzheimer’s disease", "Epilepsy", "อื่นๆ ระบุ"],
@@ -62,7 +60,6 @@ function getTypeClass(type) {
   return '';
 }
 
-// --- Form Handle ---
 function handleFormSubmit(e) {
   e.preventDefault();
   const hnVal = document.getElementById('hn').value;
@@ -180,7 +177,6 @@ function resetForm() {
   updateDiseaseUI();
 }
 
-// --- History ---
 function showHistoryModal() {
   const hn = document.getElementById('hn').value;
   const name = document.getElementById('fullname').value;
@@ -244,7 +240,6 @@ function renderApptList(s){const l=document.getElementById('appointList');const 
 function renderSummary(){document.getElementById('summaryContainer').innerHTML=`<div class="col-6 col-md-3"><div class="card p-3 bg-primary text-white"><h3>${allPatients.length}</h3>Total</div></div><div class="col-6 col-md-3"><div class="card p-3 bg-success text-white"><h3>${allPatients.filter(p=>p.status==='Alive').length}</h3>Active</div></div><div class="col-6 col-md-3"><div class="card p-3 bg-dark text-white"><h3>${allPatients.filter(p=>p.status!=='Alive').length}</h3>Death</div></div>`;}
 function initSlider(){const c=document.getElementById('dateSlider');c.innerHTML='';const d=new Date();const th=['อา','จ','อ','พ','พฤ','ศ','ส'];for(let i=0;i<14;i++){const t=new Date(d);t.setDate(d.getDate()+i);const y=t.getFullYear(),m=String(t.getMonth()+1).padStart(2,'0'),day=String(t.getDate()).padStart(2,'0'),s=`${y}-${m}-${day}`;c.innerHTML+=`<div class="date-card ${i===0?'active':''}" onclick="document.querySelectorAll('.date-card').forEach(e=>e.classList.remove('active'));this.classList.add('active');renderApptList('${s}')"><div class="date-day">${th[t.getDay()]}</div><div class="date-num">${t.getDate()}</div></div>`;}const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');renderApptList(`${y}-${m}-${day}`);}
 
-// --- DISEASE LOGIC ---
 function renderDiseaseType() {
   const sel = document.getElementById('disease_type');
   sel.innerHTML = '<option value="">-- เลือกประเภท --</option>';
