@@ -1,4 +1,4 @@
-const CACHE_NAME = 'palliative-care-v1';
+const CACHE_NAME = 'palliative-care-v2'; // อัปเดตเป็น v2
 const ASSETS = [
   './',
   './index.html',
@@ -17,4 +17,15 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('fetch', (e) => {
   e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
+});
+
+// ลบ Cache เก่า (v1) ทิ้ง เพื่อให้เห็นโลโก้ใหม่ทันที
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+      );
+    })
+  );
 });
