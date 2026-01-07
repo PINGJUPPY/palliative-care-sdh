@@ -1,0 +1,21 @@
+{
+  "name": "Palliative Care SDH",
+  "short_name": "Palliative",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F8F9FA",
+  "theme_color": "#2E8B57",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://img2.pic.in.th/logo48f9ac4bb514dfca.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://img2.pic.in.th/logo48f9ac4bb514dfca.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
